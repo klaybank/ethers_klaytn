@@ -8299,7 +8299,7 @@ class Interface {
             this._encodeParams(functionFragment.inputs, values || [])
         ]));
     }
-    // Decode the result from a function call (e.g. from eth_call)
+    // Decode the result from a function call (e.g. from klay_call)
     decodeFunctionResult(functionFragment, data) {
         if (typeof (functionFragment) === "string") {
             functionFragment = this.getFunction(functionFragment);
@@ -8328,7 +8328,7 @@ class Interface {
             reason: reason
         });
     }
-    // Encode the result for a function call (e.g. for eth_call)
+    // Encode the result for a function call (e.g. for klay_call)
     encodeFunctionResult(functionFragment, values) {
         if (typeof (functionFragment) === "string") {
             functionFragment = this.getFunction(functionFragment);
@@ -19802,7 +19802,7 @@ class JsonRpcSigner extends Signer {
         if (this._address) {
             return Promise.resolve(this._address);
         }
-        return this.provider.send("eth_accounts", []).then((accounts) => {
+        return this.provider.send("klay_accounts", []).then((accounts) => {
             if (accounts.length <= this._index) {
                 logger$u.throwError("unknown account #" + this._index, Logger.errors.UNSUPPORTED_OPERATION, {
                     operation: "getAddress"
@@ -20006,7 +20006,7 @@ class JsonRpcProvider extends BaseProvider {
         return this.getSigner(addressOrIndex).connectUnchecked();
     }
     listAccounts() {
-        return this.send("eth_accounts", []).then((accounts) => {
+        return this.send("klay_accounts", []).then((accounts) => {
             return accounts.map((a) => this.formatter.address(a));
         });
     }
@@ -20084,7 +20084,7 @@ class JsonRpcProvider extends BaseProvider {
                 return ["eth_getTransactionReceipt", [params.transactionHash]];
             case "call": {
                 const hexlifyTransaction = getStatic(this.constructor, "hexlifyTransaction");
-                return ["eth_call", [hexlifyTransaction(params.transaction, { from: true }), params.blockTag]];
+                return ["klay_call", [hexlifyTransaction(params.transaction, { from: true }), params.blockTag]];
             }
             case "estimateGas": {
                 const hexlifyTransaction = getStatic(this.constructor, "hexlifyTransaction");
@@ -20986,7 +20986,7 @@ class EtherscanProvider extends BaseProvider {
                     }
                     const postData = getTransactionPostData(params.transaction);
                     postData.module = "proxy";
-                    postData.action = "eth_call";
+                    postData.action = "klay_call";
                     postData.apikey = this.apiKey;
                     try {
                         return yield get(url, postData);

@@ -9266,7 +9266,7 @@
 	            this._encodeParams(functionFragment.inputs, values || [])
 	        ]));
 	    };
-	    // Decode the result from a function call (e.g. from eth_call)
+	    // Decode the result from a function call (e.g. from klay_call)
 	    Interface.prototype.decodeFunctionResult = function (functionFragment, data) {
 	        if (typeof (functionFragment) === "string") {
 	            functionFragment = this.getFunction(functionFragment);
@@ -9295,7 +9295,7 @@
 	            reason: reason
 	        });
 	    };
-	    // Encode the result for a function call (e.g. for eth_call)
+	    // Encode the result for a function call (e.g. for klay_call)
 	    Interface.prototype.encodeFunctionResult = function (functionFragment, values) {
 	        if (typeof (functionFragment) === "string") {
 	            functionFragment = this.getFunction(functionFragment);
@@ -22594,7 +22594,7 @@
 	        if (this._address) {
 	            return Promise.resolve(this._address);
 	        }
-	        return this.provider.send("eth_accounts", []).then(function (accounts) {
+	        return this.provider.send("klay_accounts", []).then(function (accounts) {
 	            if (accounts.length <= _this._index) {
 	                logger.throwError("unknown account #" + _this._index, lib.Logger.errors.UNSUPPORTED_OPERATION, {
 	                    operation: "getAddress"
@@ -22866,7 +22866,7 @@
 	    };
 	    JsonRpcProvider.prototype.listAccounts = function () {
 	        var _this = this;
-	        return this.send("eth_accounts", []).then(function (accounts) {
+	        return this.send("klay_accounts", []).then(function (accounts) {
 	            return accounts.map(function (a) { return _this.formatter.address(a); });
 	        });
 	    };
@@ -22945,7 +22945,7 @@
 	                return ["eth_getTransactionReceipt", [params.transactionHash]];
 	            case "call": {
 	                var hexlifyTransaction = lib$3.getStatic(this.constructor, "hexlifyTransaction");
-	                return ["eth_call", [hexlifyTransaction(params.transaction, { from: true }), params.blockTag]];
+	                return ["klay_call", [hexlifyTransaction(params.transaction, { from: true }), params.blockTag]];
 	            }
 	            case "estimateGas": {
 	                var hexlifyTransaction = lib$3.getStatic(this.constructor, "hexlifyTransaction");
@@ -24219,7 +24219,7 @@
 	                        }
 	                        postData = getTransactionPostData(params.transaction);
 	                        postData.module = "proxy";
-	                        postData.action = "eth_call";
+	                        postData.action = "klay_call";
 	                        postData.apikey = this.apiKey;
 	                        _c.label = 12;
 	                    case 12:
