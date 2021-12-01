@@ -9302,7 +9302,7 @@
 	        }
 	        return lib$1.hexlify(this._abiCoder.encode(functionFragment.outputs, values || []));
 	    };
-	    // Create the filter for the event with search criteria (e.g. for eth_filterLog)
+	    // Create the filter for the event with search criteria (e.g. for klay_filterLog)
 	    Interface.prototype.encodeFilterTopics = function (eventFragment, values) {
 	        var _this = this;
 	        if (typeof (eventFragment) === "string") {
@@ -22612,7 +22612,7 @@
 	            }
 	            return address;
 	        });
-	        // The JSON-RPC for eth_sendTransaction uses 90000 gas; if the user
+	        // The JSON-RPC for klay_sendTransaction uses 90000 gas; if the user
 	        // wishes to use this, it is easy to specify explicitly, otherwise
 	        // we look it up for them.
 	        if (transaction.gasLimit == null) {
@@ -22634,7 +22634,7 @@
 	                tx.from = sender;
 	            }
 	            var hexTx = _this.provider.constructor.hexlifyTransaction(tx, { from: true });
-	            return _this.provider.send("eth_sendTransaction", [hexTx]).then(function (hash) {
+	            return _this.provider.send("klay_sendTransaction", [hexTx]).then(function (hash) {
 	                return hash;
 	            }, function (error) {
 	                return checkError("sendTransaction", error, hexTx);
@@ -22672,9 +22672,9 @@
 	                        return [4 /*yield*/, this.getAddress()];
 	                    case 1:
 	                        address = _a.sent();
-	                        return [4 /*yield*/, this.provider.send("eth_sign", [address.toLowerCase(), lib$1.hexlify(data)])];
+	                        return [4 /*yield*/, this.provider.send("klay_sign", [address.toLowerCase(), lib$1.hexlify(data)])];
 	                    case 2: 
-	                    // https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign
+	                    // https://github.com/ethereum/wiki/wiki/JSON-RPC#klay_sign
 	                    return [2 /*return*/, _a.sent()];
 	                }
 	            });
@@ -22694,7 +22694,7 @@
 	                        return [4 /*yield*/, this.getAddress()];
 	                    case 2:
 	                        address = _a.sent();
-	                        return [4 /*yield*/, this.provider.send("eth_signTypedData_v4", [
+	                        return [4 /*yield*/, this.provider.send("klay_signTypedData_v4", [
 	                                address.toLowerCase(),
 	                                JSON.stringify(lib$9._TypedDataEncoder.getPayload(populated.domain, types, populated.value))
 	                            ])];
@@ -22820,7 +22820,7 @@
 	                        _a.label = 2;
 	                    case 2:
 	                        _a.trys.push([2, 4, , 9]);
-	                        return [4 /*yield*/, this.send("eth_chainId", [])];
+	                        return [4 /*yield*/, this.send("klay_chainId", [])];
 	                    case 3:
 	                        chainId = _a.sent();
 	                        return [3 /*break*/, 9];
@@ -22885,7 +22885,7 @@
 	        });
 	        // We can expand this in the future to any call, but for now these
 	        // are the biggest wins and do not require any serializing parameters.
-	        var cache = (["eth_chainId", "eth_blockNumber"].indexOf(method) >= 0);
+	        var cache = (["klay_chainId", "klay_blockNumber"].indexOf(method) >= 0);
 	        if (cache && this._cache[method]) {
 	            return this._cache[method];
 	        }
@@ -22918,44 +22918,44 @@
 	    JsonRpcProvider.prototype.prepareRequest = function (method, params) {
 	        switch (method) {
 	            case "getBlockNumber":
-	                return ["eth_blockNumber", []];
+	                return ["klay_blockNumber", []];
 	            case "getGasPrice":
-	                return ["eth_gasPrice", []];
+	                return ["klay_gasPrice", []];
 	            case "getBalance":
-	                return ["eth_getBalance", [getLowerCase(params.address), params.blockTag]];
+	                return ["klay_getBalance", [getLowerCase(params.address), params.blockTag]];
 	            case "getTransactionCount":
-	                return ["eth_getTransactionCount", [getLowerCase(params.address), params.blockTag]];
+	                return ["klay_getTransactionCount", [getLowerCase(params.address), params.blockTag]];
 	            case "getCode":
-	                return ["eth_getCode", [getLowerCase(params.address), params.blockTag]];
+	                return ["klay_getCode", [getLowerCase(params.address), params.blockTag]];
 	            case "getStorageAt":
-	                return ["eth_getStorageAt", [getLowerCase(params.address), params.position, params.blockTag]];
+	                return ["klay_getStorageAt", [getLowerCase(params.address), params.position, params.blockTag]];
 	            case "sendTransaction":
-	                return ["eth_sendRawTransaction", [params.signedTransaction]];
+	                return ["klay_sendRawTransaction", [params.signedTransaction]];
 	            case "getBlock":
 	                if (params.blockTag) {
-	                    return ["eth_getBlockByNumber", [params.blockTag, !!params.includeTransactions]];
+	                    return ["klay_getBlockByNumber", [params.blockTag, !!params.includeTransactions]];
 	                }
 	                else if (params.blockHash) {
-	                    return ["eth_getBlockByHash", [params.blockHash, !!params.includeTransactions]];
+	                    return ["klay_getBlockByHash", [params.blockHash, !!params.includeTransactions]];
 	                }
 	                return null;
 	            case "getTransaction":
-	                return ["eth_getTransactionByHash", [params.transactionHash]];
+	                return ["klay_getTransactionByHash", [params.transactionHash]];
 	            case "getTransactionReceipt":
-	                return ["eth_getTransactionReceipt", [params.transactionHash]];
+	                return ["klay_getTransactionReceipt", [params.transactionHash]];
 	            case "call": {
 	                var hexlifyTransaction = lib$3.getStatic(this.constructor, "hexlifyTransaction");
 	                return ["klay_call", [hexlifyTransaction(params.transaction, { from: true }), params.blockTag]];
 	            }
 	            case "estimateGas": {
 	                var hexlifyTransaction = lib$3.getStatic(this.constructor, "hexlifyTransaction");
-	                return ["eth_estimateGas", [hexlifyTransaction(params.transaction, { from: true })]];
+	                return ["klay_estimateGas", [hexlifyTransaction(params.transaction, { from: true })]];
 	            }
 	            case "getLogs":
 	                if (params.filter && params.filter.address != null) {
 	                    params.filter.address = getLowerCase(params.filter.address);
 	                }
-	                return ["eth_getLogs", [params.filter]];
+	                return ["klay_getLogs", [params.filter]];
 	            default:
 	                break;
 	        }
@@ -22995,11 +22995,11 @@
 	            return;
 	        }
 	        var self = this;
-	        var pendingFilter = this.send("eth_newPendingTransactionFilter", []);
+	        var pendingFilter = this.send("klay_newPendingTransactionFilter", []);
 	        this._pendingFilter = pendingFilter;
 	        pendingFilter.then(function (filterId) {
 	            function poll() {
-	                self.send("eth_getFilterChanges", [filterId]).then(function (hashes) {
+	                self.send("klay_getFilterChanges", [filterId]).then(function (hashes) {
 	                    if (self._pendingFilter != pendingFilter) {
 	                        return null;
 	                    }
@@ -23019,7 +23019,7 @@
 	                    });
 	                }).then(function () {
 	                    if (self._pendingFilter != pendingFilter) {
-	                        self.send("eth_uninstallFilter", [filterId]);
+	                        self.send("klay_uninstallFilter", [filterId]);
 	                        return;
 	                    }
 	                    setTimeout(function () { poll(); }, 0);
@@ -23253,7 +23253,7 @@
 	                    });
 	                }
 	            }
-	            else if (result.method === "eth_subscription") {
+	            else if (result.method === "klay_subscription") {
 	                // Subscription...
 	                var sub = _this._subs[result.params.subscription];
 	                if (sub) {
@@ -23355,7 +23355,7 @@
 	                        subIdPromise = this._subIds[tag];
 	                        if (subIdPromise == null) {
 	                            subIdPromise = Promise.all(param).then(function (param) {
-	                                return _this.send("eth_subscribe", param);
+	                                return _this.send("klay_subscribe", param);
 	                            });
 	                            this._subIds[tag] = subIdPromise;
 	                        }
@@ -23448,7 +23448,7 @@
 	                return;
 	            }
 	            delete _this._subs[subId];
-	            _this.send("eth_unsubscribe", [subId]);
+	            _this.send("klay_unsubscribe", [subId]);
 	        });
 	    };
 	    WebSocketProvider.prototype.destroy = function () {
@@ -23547,7 +23547,7 @@
 	var logger = new lib.Logger(_version$I.version);
 
 	// A StaticJsonRpcProvider is useful when you *know* for certain that
-	// the backend will never change, as it never calls eth_chainId to
+	// the backend will never change, as it never calls klay_chainId to
 	// verify its backend. However, if the backend does change, the effects
 	// are undefined and may include:
 	// - inconsistent results
@@ -24161,10 +24161,10 @@
 	                        }
 	                        return [3 /*break*/, 28];
 	                    case 1:
-	                        url += "?module=proxy&action=eth_blockNumber" + apiKey;
+	                        url += "?module=proxy&action=klay_blockNumber" + apiKey;
 	                        return [2 /*return*/, get(url, null)];
 	                    case 2:
-	                        url += "?module=proxy&action=eth_gasPrice" + apiKey;
+	                        url += "?module=proxy&action=klay_gasPrice" + apiKey;
 	                        return [2 /*return*/, get(url, null)];
 	                    case 3:
 	                        // Returns base-10 result
@@ -24172,21 +24172,21 @@
 	                        url += "&tag=" + params.blockTag + apiKey;
 	                        return [2 /*return*/, get(url, null, getResult)];
 	                    case 4:
-	                        url += "?module=proxy&action=eth_getTransactionCount&address=" + params.address;
+	                        url += "?module=proxy&action=klay_getTransactionCount&address=" + params.address;
 	                        url += "&tag=" + params.blockTag + apiKey;
 	                        return [2 /*return*/, get(url, null)];
 	                    case 5:
-	                        url += "?module=proxy&action=eth_getCode&address=" + params.address;
+	                        url += "?module=proxy&action=klay_getCode&address=" + params.address;
 	                        url += "&tag=" + params.blockTag + apiKey;
 	                        return [2 /*return*/, get(url, null)];
 	                    case 6:
-	                        url += "?module=proxy&action=eth_getStorageAt&address=" + params.address;
+	                        url += "?module=proxy&action=klay_getStorageAt&address=" + params.address;
 	                        url += "&position=" + params.position;
 	                        url += "&tag=" + params.blockTag + apiKey;
 	                        return [2 /*return*/, get(url, null)];
 	                    case 7: return [2 /*return*/, get(url, {
 	                            module: "proxy",
-	                            action: "eth_sendRawTransaction",
+	                            action: "klay_sendRawTransaction",
 	                            hex: params.signedTransaction,
 	                            apikey: this.apiKey
 	                        }).catch(function (error) {
@@ -24194,7 +24194,7 @@
 	                        })];
 	                    case 8:
 	                        if (params.blockTag) {
-	                            url += "?module=proxy&action=eth_getBlockByNumber&tag=" + params.blockTag;
+	                            url += "?module=proxy&action=klay_getBlockByNumber&tag=" + params.blockTag;
 	                            if (params.includeTransactions) {
 	                                url += "&boolean=true";
 	                            }
@@ -24206,11 +24206,11 @@
 	                        }
 	                        throw new Error("getBlock by blockHash not implemented");
 	                    case 9:
-	                        url += "?module=proxy&action=eth_getTransactionByHash&txhash=" + params.transactionHash;
+	                        url += "?module=proxy&action=klay_getTransactionByHash&txhash=" + params.transactionHash;
 	                        url += apiKey;
 	                        return [2 /*return*/, get(url, null)];
 	                    case 10:
-	                        url += "?module=proxy&action=eth_getTransactionReceipt&txhash=" + params.transactionHash;
+	                        url += "?module=proxy&action=klay_getTransactionReceipt&txhash=" + params.transactionHash;
 	                        url += apiKey;
 	                        return [2 /*return*/, get(url, null)];
 	                    case 11:
@@ -24232,7 +24232,7 @@
 	                    case 15:
 	                        postData = getTransactionPostData(params.transaction);
 	                        postData.module = "proxy";
-	                        postData.action = "eth_estimateGas";
+	                        postData.action = "klay_estimateGas";
 	                        postData.apikey = this.apiKey;
 	                        _c.label = 16;
 	                    case 16:
@@ -25570,8 +25570,8 @@
 	var _nextId = 1;
 	function buildWeb3LegacyFetcher(provider, sendFunc) {
 	    return function (method, params) {
-	        // Metamask complains about eth_sign (and on some versions hangs)
-	        if (method == "eth_sign" && (provider.isMetaMask || provider.isStatus)) {
+	        // Metamask complains about klay_sign (and on some versions hangs)
+	        if (method == "klay_sign" && (provider.isMetaMask || provider.isStatus)) {
 	            // https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal_sign
 	            method = "personal_sign";
 	            params = [params[1], params[0]];
@@ -25603,8 +25603,8 @@
 	        if (params == null) {
 	            params = [];
 	        }
-	        // Metamask complains about eth_sign (and on some versions hangs)
-	        if (method == "eth_sign" && (provider.isMetaMask || provider.isStatus)) {
+	        // Metamask complains about klay_sign (and on some versions hangs)
+	        if (method == "klay_sign" && (provider.isMetaMask || provider.isStatus)) {
 	            // https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal_sign
 	            method = "personal_sign";
 	            params = [params[1], params[0]];
