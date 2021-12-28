@@ -8299,7 +8299,7 @@ class Interface {
             this._encodeParams(functionFragment.inputs, values || [])
         ]));
     }
-    // Decode the result from a function call (e.g. from eth_call)
+    // Decode the result from a function call (e.g. from klay_call)
     decodeFunctionResult(functionFragment, data) {
         if (typeof (functionFragment) === "string") {
             functionFragment = this.getFunction(functionFragment);
@@ -8328,14 +8328,14 @@ class Interface {
             reason: reason
         });
     }
-    // Encode the result for a function call (e.g. for eth_call)
+    // Encode the result for a function call (e.g. for klay_call)
     encodeFunctionResult(functionFragment, values) {
         if (typeof (functionFragment) === "string") {
             functionFragment = this.getFunction(functionFragment);
         }
         return hexlify(this._abiCoder.encode(functionFragment.outputs, values || []));
     }
-    // Create the filter for the event with search criteria (e.g. for eth_filterLog)
+    // Create the filter for the event with search criteria (e.g. for klay_filterLog)
     encodeFilterTopics(eventFragment, values) {
         if (typeof (eventFragment) === "string") {
             eventFragment = this.getEvent(eventFragment);
@@ -19802,7 +19802,7 @@ class JsonRpcSigner extends Signer {
         if (this._address) {
             return Promise.resolve(this._address);
         }
-        return this.provider.send("eth_accounts", []).then((accounts) => {
+        return this.provider.send("klay_accounts", []).then((accounts) => {
             if (accounts.length <= this._index) {
                 logger$u.throwError("unknown account #" + this._index, Logger.errors.UNSUPPORTED_OPERATION, {
                     operation: "getAddress"
@@ -19819,7 +19819,7 @@ class JsonRpcSigner extends Signer {
             }
             return address;
         });
-        // The JSON-RPC for eth_sendTransaction uses 90000 gas; if the user
+        // The JSON-RPC for klay_sendTransaction uses 90000 gas; if the user
         // wishes to use this, it is easy to specify explicitly, otherwise
         // we look it up for them.
         if (transaction.gasLimit == null) {
@@ -19840,7 +19840,7 @@ class JsonRpcSigner extends Signer {
                 tx.from = sender;
             }
             const hexTx = this.provider.constructor.hexlifyTransaction(tx, { from: true });
-            return this.provider.send("eth_sendTransaction", [hexTx]).then((hash) => {
+            return this.provider.send("klay_sendTransaction", [hexTx]).then((hash) => {
                 return hash;
             }, (error) => {
                 return checkError("sendTransaction", error, hexTx);
@@ -19871,8 +19871,8 @@ class JsonRpcSigner extends Signer {
         return __awaiter$9(this, void 0, void 0, function* () {
             const data = ((typeof (message) === "string") ? toUtf8Bytes(message) : message);
             const address = yield this.getAddress();
-            // https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign
-            return yield this.provider.send("eth_sign", [address.toLowerCase(), hexlify(data)]);
+            // https://github.com/ethereum/wiki/wiki/JSON-RPC#klay_sign
+            return yield this.provider.send("klay_sign", [address.toLowerCase(), hexlify(data)]);
         });
     }
     _signTypedData(domain, types, value) {
@@ -19882,7 +19882,7 @@ class JsonRpcSigner extends Signer {
                 return this.provider.resolveName(name);
             });
             const address = yield this.getAddress();
-            return yield this.provider.send("eth_signTypedData_v4", [
+            return yield this.provider.send("klay_signTypedData_v4", [
                 address.toLowerCase(),
                 JSON.stringify(TypedDataEncoder.getPayload(populated.domain, types, populated.value))
             ]);
@@ -19973,7 +19973,7 @@ class JsonRpcProvider extends BaseProvider {
             yield timer(0);
             let chainId = null;
             try {
-                chainId = yield this.send("eth_chainId", []);
+                chainId = yield this.send("klay_chainId", []);
             }
             catch (error) {
                 try {
@@ -20006,7 +20006,7 @@ class JsonRpcProvider extends BaseProvider {
         return this.getSigner(addressOrIndex).connectUnchecked();
     }
     listAccounts() {
-        return this.send("eth_accounts", []).then((accounts) => {
+        return this.send("klay_accounts", []).then((accounts) => {
             return accounts.map((a) => this.formatter.address(a));
         });
     }
@@ -20024,7 +20024,7 @@ class JsonRpcProvider extends BaseProvider {
         });
         // We can expand this in the future to any call, but for now these
         // are the biggest wins and do not require any serializing parameters.
-        const cache = (["eth_chainId", "eth_blockNumber"].indexOf(method) >= 0);
+        const cache = (["klay_chainId", "klay_blockNumber"].indexOf(method) >= 0);
         if (cache && this._cache[method]) {
             return this._cache[method];
         }
@@ -20057,44 +20057,44 @@ class JsonRpcProvider extends BaseProvider {
     prepareRequest(method, params) {
         switch (method) {
             case "getBlockNumber":
-                return ["eth_blockNumber", []];
+                return ["klay_blockNumber", []];
             case "getGasPrice":
-                return ["eth_gasPrice", []];
+                return ["klay_gasPrice", []];
             case "getBalance":
-                return ["eth_getBalance", [getLowerCase(params.address), params.blockTag]];
+                return ["klay_getBalance", [getLowerCase(params.address), params.blockTag]];
             case "getTransactionCount":
-                return ["eth_getTransactionCount", [getLowerCase(params.address), params.blockTag]];
+                return ["klay_getTransactionCount", [getLowerCase(params.address), params.blockTag]];
             case "getCode":
-                return ["eth_getCode", [getLowerCase(params.address), params.blockTag]];
+                return ["klay_getCode", [getLowerCase(params.address), params.blockTag]];
             case "getStorageAt":
-                return ["eth_getStorageAt", [getLowerCase(params.address), params.position, params.blockTag]];
+                return ["klay_getStorageAt", [getLowerCase(params.address), params.position, params.blockTag]];
             case "sendTransaction":
-                return ["eth_sendRawTransaction", [params.signedTransaction]];
+                return ["klay_sendRawTransaction", [params.signedTransaction]];
             case "getBlock":
                 if (params.blockTag) {
-                    return ["eth_getBlockByNumber", [params.blockTag, !!params.includeTransactions]];
+                    return ["klay_getBlockByNumber", [params.blockTag, !!params.includeTransactions]];
                 }
                 else if (params.blockHash) {
-                    return ["eth_getBlockByHash", [params.blockHash, !!params.includeTransactions]];
+                    return ["klay_getBlockByHash", [params.blockHash, !!params.includeTransactions]];
                 }
                 return null;
             case "getTransaction":
-                return ["eth_getTransactionByHash", [params.transactionHash]];
+                return ["klay_getTransactionByHash", [params.transactionHash]];
             case "getTransactionReceipt":
-                return ["eth_getTransactionReceipt", [params.transactionHash]];
+                return ["klay_getTransactionReceipt", [params.transactionHash]];
             case "call": {
                 const hexlifyTransaction = getStatic(this.constructor, "hexlifyTransaction");
-                return ["eth_call", [hexlifyTransaction(params.transaction, { from: true }), params.blockTag]];
+                return ["klay_call", [hexlifyTransaction(params.transaction, { from: true }), params.blockTag]];
             }
             case "estimateGas": {
                 const hexlifyTransaction = getStatic(this.constructor, "hexlifyTransaction");
-                return ["eth_estimateGas", [hexlifyTransaction(params.transaction, { from: true })]];
+                return ["klay_estimateGas", [hexlifyTransaction(params.transaction, { from: true })]];
             }
             case "getLogs":
                 if (params.filter && params.filter.address != null) {
                     params.filter.address = getLowerCase(params.filter.address);
                 }
-                return ["eth_getLogs", [params.filter]];
+                return ["klay_getLogs", [params.filter]];
             default:
                 break;
         }
@@ -20125,11 +20125,11 @@ class JsonRpcProvider extends BaseProvider {
             return;
         }
         const self = this;
-        const pendingFilter = this.send("eth_newPendingTransactionFilter", []);
+        const pendingFilter = this.send("klay_newPendingTransactionFilter", []);
         this._pendingFilter = pendingFilter;
         pendingFilter.then(function (filterId) {
             function poll() {
-                self.send("eth_getFilterChanges", [filterId]).then(function (hashes) {
+                self.send("klay_getFilterChanges", [filterId]).then(function (hashes) {
                     if (self._pendingFilter != pendingFilter) {
                         return null;
                     }
@@ -20149,7 +20149,7 @@ class JsonRpcProvider extends BaseProvider {
                     });
                 }).then(function () {
                     if (self._pendingFilter != pendingFilter) {
-                        self.send("eth_uninstallFilter", [filterId]);
+                        self.send("klay_uninstallFilter", [filterId]);
                         return;
                     }
                     setTimeout(function () { poll(); }, 0);
@@ -20314,7 +20314,7 @@ class WebSocketProvider extends JsonRpcProvider {
                     });
                 }
             }
-            else if (result.method === "eth_subscription") {
+            else if (result.method === "klay_subscription") {
                 // Subscription...
                 const sub = this._subs[result.params.subscription];
                 if (sub) {
@@ -20399,7 +20399,7 @@ class WebSocketProvider extends JsonRpcProvider {
             let subIdPromise = this._subIds[tag];
             if (subIdPromise == null) {
                 subIdPromise = Promise.all(param).then((param) => {
-                    return this.send("eth_subscribe", param);
+                    return this.send("klay_subscribe", param);
                 });
                 this._subIds[tag] = subIdPromise;
             }
@@ -20485,7 +20485,7 @@ class WebSocketProvider extends JsonRpcProvider {
                 return;
             }
             delete this._subs[subId];
-            this.send("eth_unsubscribe", [subId]);
+            this.send("klay_unsubscribe", [subId]);
         });
     }
     destroy() {
@@ -20520,7 +20520,7 @@ var __awaiter$b = (window && window.__awaiter) || function (thisArg, _arguments,
 };
 const logger$w = new Logger(version$m);
 // A StaticJsonRpcProvider is useful when you *know* for certain that
-// the backend will never change, as it never calls eth_chainId to
+// the backend will never change, as it never calls klay_chainId to
 // verify its backend. However, if the backend does change, the effects
 // are undefined and may include:
 // - inconsistent results
@@ -20699,7 +20699,7 @@ class CloudflareProvider extends UrlJsonRpcProvider {
             perform: { get: () => super.perform }
         });
         return __awaiter$c(this, void 0, void 0, function* () {
-            // The Cloudflare provider does not support eth_blockNumber,
+            // The Cloudflare provider does not support klay_blockNumber,
             // so we get the latest block and pull it from that
             if (method === "getBlockNumber") {
                 const block = yield _super.perform.call(this, "getBlock", { blockTag: "latest" });
@@ -20927,10 +20927,10 @@ class EtherscanProvider extends BaseProvider {
             });
             switch (method) {
                 case "getBlockNumber":
-                    url += "?module=proxy&action=eth_blockNumber" + apiKey;
+                    url += "?module=proxy&action=klay_blockNumber" + apiKey;
                     return get(url, null);
                 case "getGasPrice":
-                    url += "?module=proxy&action=eth_gasPrice" + apiKey;
+                    url += "?module=proxy&action=klay_gasPrice" + apiKey;
                     return get(url, null);
                 case "getBalance":
                     // Returns base-10 result
@@ -20938,22 +20938,22 @@ class EtherscanProvider extends BaseProvider {
                     url += "&tag=" + params.blockTag + apiKey;
                     return get(url, null, getResult$1);
                 case "getTransactionCount":
-                    url += "?module=proxy&action=eth_getTransactionCount&address=" + params.address;
+                    url += "?module=proxy&action=klay_getTransactionCount&address=" + params.address;
                     url += "&tag=" + params.blockTag + apiKey;
                     return get(url, null);
                 case "getCode":
-                    url += "?module=proxy&action=eth_getCode&address=" + params.address;
+                    url += "?module=proxy&action=klay_getCode&address=" + params.address;
                     url += "&tag=" + params.blockTag + apiKey;
                     return get(url, null);
                 case "getStorageAt":
-                    url += "?module=proxy&action=eth_getStorageAt&address=" + params.address;
+                    url += "?module=proxy&action=klay_getStorageAt&address=" + params.address;
                     url += "&position=" + params.position;
                     url += "&tag=" + params.blockTag + apiKey;
                     return get(url, null);
                 case "sendTransaction":
                     return get(url, {
                         module: "proxy",
-                        action: "eth_sendRawTransaction",
+                        action: "klay_sendRawTransaction",
                         hex: params.signedTransaction,
                         apikey: this.apiKey
                     }).catch((error) => {
@@ -20961,7 +20961,7 @@ class EtherscanProvider extends BaseProvider {
                     });
                 case "getBlock":
                     if (params.blockTag) {
-                        url += "?module=proxy&action=eth_getBlockByNumber&tag=" + params.blockTag;
+                        url += "?module=proxy&action=klay_getBlockByNumber&tag=" + params.blockTag;
                         if (params.includeTransactions) {
                             url += "&boolean=true";
                         }
@@ -20973,11 +20973,11 @@ class EtherscanProvider extends BaseProvider {
                     }
                     throw new Error("getBlock by blockHash not implemented");
                 case "getTransaction":
-                    url += "?module=proxy&action=eth_getTransactionByHash&txhash=" + params.transactionHash;
+                    url += "?module=proxy&action=klay_getTransactionByHash&txhash=" + params.transactionHash;
                     url += apiKey;
                     return get(url, null);
                 case "getTransactionReceipt":
-                    url += "?module=proxy&action=eth_getTransactionReceipt&txhash=" + params.transactionHash;
+                    url += "?module=proxy&action=klay_getTransactionReceipt&txhash=" + params.transactionHash;
                     url += apiKey;
                     return get(url, null);
                 case "call": {
@@ -20986,7 +20986,7 @@ class EtherscanProvider extends BaseProvider {
                     }
                     const postData = getTransactionPostData(params.transaction);
                     postData.module = "proxy";
-                    postData.action = "eth_call";
+                    postData.action = "klay_call";
                     postData.apikey = this.apiKey;
                     try {
                         return yield get(url, postData);
@@ -20998,7 +20998,7 @@ class EtherscanProvider extends BaseProvider {
                 case "estimateGas": {
                     const postData = getTransactionPostData(params.transaction);
                     postData.module = "proxy";
-                    postData.action = "eth_estimateGas";
+                    postData.action = "klay_estimateGas";
                     postData.apikey = this.apiKey;
                     try {
                         return yield get(url, postData);
@@ -22023,8 +22023,8 @@ const logger$E = new Logger(version$m);
 let _nextId = 1;
 function buildWeb3LegacyFetcher(provider, sendFunc) {
     return function (method, params) {
-        // Metamask complains about eth_sign (and on some versions hangs)
-        if (method == "eth_sign" && (provider.isMetaMask || provider.isStatus)) {
+        // Metamask complains about klay_sign (and on some versions hangs)
+        if (method == "klay_sign" && (provider.isMetaMask || provider.isStatus)) {
             // https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal_sign
             method = "personal_sign";
             params = [params[1], params[0]];
@@ -22056,8 +22056,8 @@ function buildEip1193Fetcher(provider) {
         if (params == null) {
             params = [];
         }
-        // Metamask complains about eth_sign (and on some versions hangs)
-        if (method == "eth_sign" && (provider.isMetaMask || provider.isStatus)) {
+        // Metamask complains about klay_sign (and on some versions hangs)
+        if (method == "klay_sign" && (provider.isMetaMask || provider.isStatus)) {
             // https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal_sign
             method = "personal_sign";
             params = [params[1], params[0]];
